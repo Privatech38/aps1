@@ -2,14 +2,20 @@ import java.util.Random;
 
 public class Izziv1 {
 
+    /*
+
+
+
+     */
+
     public static void main(String[] args) {
-        System.out.println("n        lin. iskanje | bin. iskanje | rek. bin. iskanje");
+        System.out.println("    n    | lin. iskanje | bin. iskanje | rek. bin. iskanje");
         for (int i = 20000; i <= 1000000; i += 20000) {
             int[] tabela = generateTable(i);
             long linearTime = timeLinear(tabela);
             long binaryTime = timeBinary(tabela);
             long binaryRecursiveTime = timeBinaryRecursive(tabela);
-            System.out.printf("%7d  %10d  %10d     %10d\n", i, linearTime, binaryTime, binaryRecursiveTime);
+            System.out.printf(" %7d |    %6d    |     %4d     |     %4d\n", i, linearTime, binaryTime, binaryRecursiveTime);
         }
     }
 
