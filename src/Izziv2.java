@@ -69,7 +69,7 @@ public class Izziv2 {
         public void enqueueFront(T x) throws CollectionException {
             if (isFull())
                 throw new CollectionException(ERR_MSG_FULL);
-            System.arraycopy(elements, 0, elements, 1, top++);
+            System.arraycopy(elements, 0, elements, 1, ++top);
             elements[0] = x;
         }
 
@@ -196,9 +196,35 @@ public class Izziv2 {
         deque.enqueue("B");
         deque.enqueue("C");
         System.out.println("Deque: " + deque);
-        // Enque front
+        // Enqueue front
         deque.enqueueFront("D");
         System.out.println("Deque: " + deque);
+        // Enqueue fail test
+        try {
+            deque.enqueue("E");
+        } catch (CollectionException e) {
+            e.printStackTrace();
+        }
+        // Enqueue front fail test
+        try {
+            deque.enqueueFront("F");
+        } catch (CollectionException e) {
+            e.printStackTrace();
+        }
+        // Front and back tests
+        System.out.println("Deque front: " + deque.front());
+        System.out.println("Deque back: " + deque.back());
+        // Dequeue tests
+        System.out.println("Deque: " + deque);
+        System.out.println("Dequeued element: " + deque.dequeue());
+        System.out.println("Deque: " + deque);
+        // Dequeue back tests
+        System.out.println("Dequeued backside element: " + deque.dequeueBack());
+        System.out.println("Deque: " + deque);
+        // Emptying
+        System.out.println("Emptying deque to test dequeue throwables");
+        deque.dequeue();
+        deque.dequeue();
         // Deque fail test
         try {
             deque.dequeue();
@@ -210,6 +236,8 @@ public class Izziv2 {
         } catch (CollectionException e) {
             e.printStackTrace();
         }
+        System.out.println("Deque: " + deque);
+
     }
 
 }
