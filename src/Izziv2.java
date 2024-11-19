@@ -95,7 +95,7 @@ public class Izziv2 {
         public T get(int i) throws CollectionException {
             if (isEmpty())
                 throw new CollectionException(ERR_MSG_EMPTY);
-            if (i > top || top < 0)
+            if (i > top || i < 0)
                 throw new CollectionException(ERR_MSG_INDEX);
             return elements[i];
         }
@@ -160,7 +160,13 @@ public class Izziv2 {
     // Tester
 
     public static void main(String[] args) throws CollectionException {
-        // Stack tester
+        testStack();
+        testDeque();
+        testSequence();
+
+    }
+
+    private static void testStack() throws CollectionException {
         Stack<String> stack = new ArrayDeque<>();
         stack.push("ABC");
         stack.push("DEF");
@@ -188,8 +194,9 @@ public class Izziv2 {
         } catch (CollectionException e) {
             e.printStackTrace();
         }
+    }
 
-        // Deque tester
+    private static void testDeque() throws CollectionException {
         Deque<String> deque = new ArrayDeque<>();
         // Add elements to deque
         deque.enqueue("A");
@@ -237,6 +244,41 @@ public class Izziv2 {
             e.printStackTrace();
         }
         System.out.println("Deque: " + deque);
+    }
+
+    private static void testSequence() throws CollectionException {
+        Sequence<String> sequence = new ArrayDeque<>();
+        sequence.add("A");
+        sequence.add("B");
+        // get tester
+        System.out.println("Sequence: " + sequence);
+        System.out.println("Try to get element at i=2");
+        try {
+            sequence.get(2);
+        } catch (CollectionException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Try to get element at i=4 and i=-1");
+        try {
+            sequence.get(4);
+        } catch (CollectionException e) {
+            e.printStackTrace();
+        }
+        try {
+            sequence.get(-1);
+        } catch (CollectionException e) {
+            e.printStackTrace();
+        }
+        sequence.add("C");
+        sequence.add("D");
+        System.out.println("Sequence: " + sequence);
+        System.out.println("Full sequence add test:");
+        try {
+            sequence.add("E");
+        } catch (CollectionException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Sequence element at i=2: " + sequence.get(2));
 
     }
 
