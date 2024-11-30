@@ -1,5 +1,6 @@
 import java.util.Scanner;
 
+@SuppressWarnings({"SuspiciousNameCombination", "unchecked"})
 public class DN1 {
 
     private static class CollectionException extends Exception {
@@ -18,7 +19,6 @@ public class DN1 {
         String toString();
     }
 
-    @SuppressWarnings("unchecked")
     private static class Stack<T> implements Collection {
         private static final int DEFAULT_CAPACITY = 64;
         private final T[] elements = (T[]) new Object[DEFAULT_CAPACITY];
@@ -64,14 +64,13 @@ public class DN1 {
             if (isEmpty())
                 return "";
             String output = "";
-            for (int i = 0; i < top; i++) {
+            for (int i = 0; i <= top; i++) {
                 output = output.concat(elements[i] + " ");
             }
             return output;
         }
     }
 
-    @SuppressWarnings("unchecked")
     private static class Sequence<T> implements Collection {
         private static final int DEFAULT_CAPACITY = 64;
         private final T[] elements = (T[]) new Object[DEFAULT_CAPACITY];
@@ -108,25 +107,184 @@ public class DN1 {
         }
     }
 
-    private static final Sequence<Stack<String>> stacks = new Sequence<>();
+    private static final Sequence<Stack<Object>> stacks = new Sequence<>();
 
     public static void main(String[] args) throws CollectionException {
         // Create stacks
         for (int i = 0; i < 42; i++)
             stacks.add(new Stack<>());
         // User input
-        final Scanner sc = new Scanner(System.in).useDelimiter(System.lineSeparator() + "|\\s");
-//        System.out.print("> ");
-        while (sc.hasNext()) {
-            String s = sc.next();
-            System.out.println(s);
-            stacks.get(0).push(s);
+        final Scanner sc = new Scanner(System.in);
+        while (sc.hasNextLine()) {
+            // Clear stacks
+            for (int i = 0; i < stacks.size(); i++) {
+                while (!stacks.get(i).isEmpty())
+                    stacks.get(i).pop();
+            }
+            process(sc.nextLine(), 0);
         }
-
     }
 
-    private static void process(String input) {
+    private static void process(String input, int selectedStack) throws CollectionException {
+        boolean compareResult = false;
+        Stack<Object> objectStack = stacks.get(selectedStack);
+        // fun count
+        int funStack = 0;
+        int funCount = 0;
+        for (String string : input.split("\\s+")) {
+            if (string.matches("-?\\d+")) {
+                objectStack.push(Integer.parseInt(string));
+                continue;
+            }
+            if (string.matches("\\?\\S+") && !compareResult) continue;
+            if (string.matches("\\??(print|clear|run|loop|fun|move|reverse)")) {
+                selectedStack = (int) objectStack.pop();
+                objectStack = stacks.get(selectedStack);
+            }
+            if (funCount > 0 && string.matches("\\??(echo|pop|dup|dup2|swap|char|even|odd|!|len|<>|<|<=|==|>|>=|\\+|-|\\*|/|%|\\." +
+                    "|rnd|then|else|print|clear|run|loop|fun|move|reverse)")) {
+                stacks.get(funStack).push(string);
+                funCount--;
+            }
+            switch (string) {
+                // Prvi del
+                case "echo":
+                    System.out.println(objectStack.top());
+                    break;
+                case "pop":
+                    objectStack.pop();
+                    break;
+                case "dup":
+                    objectStack.push(objectStack.top());
+                    break;
+                case "dup2":
+                    final Object topElement = objectStack.pop();
+                    final Object secondTopElement = objectStack.top();
+                    objectStack.push(topElement);
+                    objectStack.push(secondTopElement);
+                    objectStack.push(topElement);
+                    break;
+                case "swap":
+                    final Object topElementSwap = objectStack.pop();
+                    final Object secondTopElementSwap = objectStack.pop();
+                    objectStack.push(topElementSwap);
+                    objectStack.push(secondTopElementSwap);
+                    break;
+                // Drugi del
+                case "char":
+                    objectStack.push((char) (int) objectStack.pop());
+                    break;
+                case "even":
+                    Object num = objectStack.pop();
+                    objectStack.push(((num instanceof Integer ? (int) num : (long) num) % 2 == 0 ? 1 : 0));
+                    break;
+                case "odd":
+                    Object num2 = objectStack.pop();
+                    objectStack.push(((num2 instanceof Integer ? (int) num2 : (long) num2) % 2 == 0 ? 0 : 1));
+                    break;
+                case "!":
+                    objectStack.push(factorial((int) objectStack.pop()));
+                    break;
+                case "len":
+                    objectStack.push(String.valueOf(objectStack.pop()).length());
+                    break;
+                // Tretji del
+                case "<>":
+                    objectStack.push(((int) objectStack.pop() == (int) objectStack.pop() ? 0 : 1));
+                    break;
+                case "<":
+                    objectStack.push(((int) objectStack.pop() < (int) objectStack.pop() ? 0 : 1));
+                    break;
+                case "<=":
+                    objectStack.push(((int) objectStack.pop() <= (int) objectStack.pop() ? 0 : 1));
+                    break;
+                case "==":
+                    objectStack.push(((int) objectStack.pop() == (int) objectStack.pop() ? 1 : 0));
+                    break;
+                case ">":
+                    objectStack.push(((int) objectStack.pop() > (int) objectStack.pop() ? 0 : 1));
+                    break;
+                case ">=":
+                    objectStack.push(((int) objectStack.pop() >= (int) objectStack.pop() ? 0 : 1));
+                    break;
+                case "+":
+                    objectStack.push((int) objectStack.pop() + (int) objectStack.pop());
+                    break;
+                case "-":
+                    int minus = (int) objectStack.pop();
+                    objectStack.push((int) objectStack.pop() - minus);
+                    break;
+                case "*":
+                    objectStack.push((int) objectStack.pop() * (int) objectStack.pop());
+                    break;
+                case "/":
+                    int div = (int) objectStack.pop();
+                    objectStack.push((int) objectStack.pop() / div);
+                    break;
+                case "%":
+                    int z = (int) objectStack.pop();
+                    objectStack.push((int) objectStack.pop() % z);
+                    break;
+                case ".":
+                    Object concat = objectStack.pop();
+                    objectStack.push(objectStack.pop() + "" + concat);
+                    break;
+                case "rnd":
+                    int y = (int) objectStack.pop();
+                    int x = (int) objectStack.pop();
+                    objectStack.push((int) (x + Math.random() * (y - x)));
+                    break;
+                // Četrti del
+                case "then":
+                    compareResult = (int) objectStack.pop() != 0;
+                    break;
+                case "else":
+                    compareResult = !compareResult;
+                    break;
+                // Peti del
+                case "print":
+                    System.out.println(objectStack.toString());
+                    break;
+                case "clear":
+                    while (!objectStack.isEmpty())
+                        objectStack.pop();
+                    break;
+                case "run":
+                    process(objectStack.toString(), funStack);
+                    break;
+                case "loop":
+                    break;
+                case "fun":
+                    funStack = selectedStack;
+                    funCount = (int) objectStack.pop();
+                    break;
+                case "move":
+                    for (int i = 0; i < (int) stacks.get(0).pop(); i++)
+                        objectStack.push(stacks.get(0).pop());
+                    break;
+                case "reverse":
+                    final Sequence<Object> temporarySequence = new Sequence<>();
+                    while (!objectStack.isEmpty())
+                        temporarySequence.add(objectStack.pop());
+                    for (int i = 0; i < temporarySequence.size(); i++)
+                        objectStack.push(temporarySequence.get(i));
+                    break;
+                default:
+                    objectStack.push(string);
+            }
+            if (string.matches("\\??(print|clear|run|loop|fun|move|reverse)")) {
+                selectedStack = 0;
+                objectStack = stacks.get(selectedStack);
+            }
+        }
+    }
 
+    private static long factorial(int num) {
+        long result = 1;
+        for (int i = 1; i <= num; i++) {
+            result *= i;
+        }
+        return result;
     }
 
 }
