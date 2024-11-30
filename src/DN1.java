@@ -125,26 +125,74 @@ public class DN1 {
         }
     }
 
-    private static void process(String input, int selectedStack) throws CollectionException {
+    private static void process(String input, int givenSlot) throws CollectionException {
+        int selectedStack = givenSlot;
         boolean compareResult = false;
         Stack<Object> objectStack = stacks.get(selectedStack);
         // fun count
         int funStack = 0;
-        int funCount = 0;
+        int funCount = -1;
         for (String string : input.split("\\s+")) {
+            if (funCount > 0) {
+                stacks.get(funStack).push(string);
+                funCount--;
+                continue;
+            } else if (funCount == 0) {
+                objectStack = stacks.get(0);
+                funCount--;
+            }
+            if (string.matches("\\?\\S+")) {
+                if (!compareResult) {
+                    continue;
+                } else {
+                    string = string.substring(1);
+                }
+            }
             if (string.matches("-?\\d+")) {
                 objectStack.push(Integer.parseInt(string));
                 continue;
             }
-            if (string.matches("\\?\\S+") && !compareResult) continue;
             if (string.matches("\\??(print|clear|run|loop|fun|move|reverse)")) {
-                selectedStack = (int) objectStack.pop();
+                selectedStack = (int) stacks.get(0).pop();
                 objectStack = stacks.get(selectedStack);
-            }
-            if (funCount > 0 && string.matches("\\??(echo|pop|dup|dup2|swap|char|even|odd|!|len|<>|<|<=|==|>|>=|\\+|-|\\*|/|%|\\." +
-                    "|rnd|then|else|print|clear|run|loop|fun|move|reverse)")) {
-                stacks.get(funStack).push(string);
-                funCount--;
+                switch (string) {
+                    // Peti del
+                    case "print":
+                        System.out.println(objectStack.toString());
+                        break;
+                    case "clear":
+                        while (!objectStack.isEmpty())
+                            objectStack.pop();
+                        break;
+                    case "run":
+                        process(objectStack.toString(), 0);
+                        break;
+                    case "loop":
+                        int loopAmount = (int) stacks.get(0).pop();
+                        for (int i = 0; i < loopAmount; i++) {
+                            process(objectStack.toString(), 0);
+                        }
+                        break;
+                    case "fun":
+                        funStack = selectedStack;
+                        funCount = (int) stacks.get(0).pop();
+                        break;
+                    case "move":
+                        int amount = (int) stacks.get(0).pop();
+                        for (int i = 0; i < amount; i++)
+                            objectStack.push(stacks.get(0).pop());
+                        break;
+                    case "reverse":
+                        final Sequence<Object> temporarySequence = new Sequence<>();
+                        while (!objectStack.isEmpty())
+                            temporarySequence.add(objectStack.pop());
+                        for (int i = 0; i < temporarySequence.size(); i++)
+                            objectStack.push(temporarySequence.get(i));
+                        break;
+                }
+                selectedStack = givenSlot;
+                objectStack = stacks.get(selectedStack);
+                continue;
             }
             switch (string) {
                 // Prvi del
@@ -199,7 +247,7 @@ public class DN1 {
                     objectStack.push(((int) objectStack.pop() <= (int) objectStack.pop() ? 0 : 1));
                     break;
                 case "==":
-                    objectStack.push(((int) objectStack.pop() == (int) objectStack.pop() ? 1 : 0));
+                    objectStack.push((String.valueOf(objectStack.pop()).equals(String.valueOf(objectStack.pop())) ? 1 : 0));
                     break;
                 case ">":
                     objectStack.push(((int) objectStack.pop() > (int) objectStack.pop() ? 0 : 1));
@@ -241,40 +289,8 @@ public class DN1 {
                 case "else":
                     compareResult = !compareResult;
                     break;
-                // Peti del
-                case "print":
-                    System.out.println(objectStack.toString());
-                    break;
-                case "clear":
-                    while (!objectStack.isEmpty())
-                        objectStack.pop();
-                    break;
-                case "run":
-                    process(objectStack.toString(), funStack);
-                    break;
-                case "loop":
-                    break;
-                case "fun":
-                    funStack = selectedStack;
-                    funCount = (int) objectStack.pop();
-                    break;
-                case "move":
-                    for (int i = 0; i < (int) stacks.get(0).pop(); i++)
-                        objectStack.push(stacks.get(0).pop());
-                    break;
-                case "reverse":
-                    final Sequence<Object> temporarySequence = new Sequence<>();
-                    while (!objectStack.isEmpty())
-                        temporarySequence.add(objectStack.pop());
-                    for (int i = 0; i < temporarySequence.size(); i++)
-                        objectStack.push(temporarySequence.get(i));
-                    break;
                 default:
                     objectStack.push(string);
-            }
-            if (string.matches("\\??(print|clear|run|loop|fun|move|reverse)")) {
-                selectedStack = 0;
-                objectStack = stacks.get(selectedStack);
             }
         }
     }
