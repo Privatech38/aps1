@@ -241,19 +241,19 @@ public class DN1 {
                     objectStack.push(((int) objectStack.pop() == (int) objectStack.pop() ? 0 : 1));
                     break;
                 case "<":
-                    objectStack.push(((int) objectStack.pop() < (int) objectStack.pop() ? 0 : 1));
+                    objectStack.push(((int) objectStack.pop() <= (int) objectStack.pop() ? 0 : 1));
                     break;
                 case "<=":
-                    objectStack.push(((int) objectStack.pop() <= (int) objectStack.pop() ? 0 : 1));
+                    objectStack.push(((int) objectStack.pop() < (int) objectStack.pop() ? 0 : 1));
                     break;
                 case "==":
                     objectStack.push((String.valueOf(objectStack.pop()).equals(String.valueOf(objectStack.pop())) ? 1 : 0));
                     break;
                 case ">":
-                    objectStack.push(((int) objectStack.pop() > (int) objectStack.pop() ? 0 : 1));
+                    objectStack.push(((int) objectStack.pop() >= (int) objectStack.pop() ? 0 : 1));
                     break;
                 case ">=":
-                    objectStack.push(((int) objectStack.pop() >= (int) objectStack.pop() ? 0 : 1));
+                    objectStack.push(((int) objectStack.pop() > (int) objectStack.pop() ? 0 : 1));
                     break;
                 case "+":
                     objectStack.push((int) objectStack.pop() + (int) objectStack.pop());
