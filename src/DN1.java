@@ -302,5 +302,4 @@ public class DN1 {
         }
         return result;
     }
-
 }
