@@ -121,6 +121,9 @@ public class DN2 {
             case "insert":
                 insertionSort(list, nacinDelovanja, smerUrejanja);
                 break;
+            case "select":
+                selectionSort(list, nacinDelovanja, smerUrejanja);
+                break;
         }
     }
 
@@ -159,6 +162,42 @@ public class DN2 {
                 insertionSort(elements, nacinDelovanja, smerUrejanja, countMode);
             } else if (countMode == 2) {
                 insertionSort(elements, nacinDelovanja, smerUrejanja == SmerUrejanja.ASC ? SmerUrejanja.DESC : SmerUrejanja.ASC, countMode);
+            }
+        }
+    }
+
+    private static void selectionSort(ArrayList<Integer> elements, NacinDelovanja nacinDelovanja, SmerUrejanja smerUrejanja) {
+        selectionSort(elements, nacinDelovanja, smerUrejanja, 0);
+    }
+
+    private static void selectionSort(ArrayList<Integer> elements, NacinDelovanja nacinDelovanja, SmerUrejanja smerUrejanja, int countMode) {
+        if (nacinDelovanja == NacinDelovanja.TRACE)
+            System.out.println(elements);
+        long moveCount = 0;
+        long compareCount = 0;
+        for (int i = 0; i < elements.size(); i++) {
+            int minIndex = i;
+            for (int j = i + 1; j < elements.size(); j++) {
+                compareCount++;
+                if (smerUrejanja == SmerUrejanja.ASC ? elements.get(j) < elements.get(minIndex) : elements.get(j) > elements.get(minIndex)) {
+                    minIndex = j;
+                }
+            }
+            if (i == elements.size() - 1) {
+                continue;
+            }
+            elements.swap(i, minIndex);
+            moveCount += 3;
+            if (nacinDelovanja == NacinDelovanja.TRACE) {
+                System.out.printf("%s | %s\n", elements.subList(0, i + 1), elements.subList(i + 1, elements.size()));
+            }
+        }
+        if (nacinDelovanja == NacinDelovanja.COUNT) {
+            System.out.printf("%s%d %d", countMode++ == 0 ? "" : " | ", moveCount, compareCount);
+            if (countMode == 1) {
+                selectionSort(elements, nacinDelovanja, smerUrejanja, countMode);
+            } else if (countMode == 2) {
+                selectionSort(elements, nacinDelovanja, smerUrejanja == SmerUrejanja.ASC ? SmerUrejanja.DESC : SmerUrejanja.ASC, countMode);
             }
         }
     }
