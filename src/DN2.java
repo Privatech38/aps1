@@ -117,87 +117,129 @@ public class DN2 {
                 smerUrejanja = SmerUrejanja.ASC;
         }
         // Sort
+        Sorter sorter;
         switch (commands[1]) {
             case "insert":
-                insertionSort(list, nacinDelovanja, smerUrejanja);
+                sorter = new InsertionSorter();
                 break;
             case "select":
-                selectionSort(list, nacinDelovanja, smerUrejanja);
+                sorter = new SelectionSorter();
                 break;
+            case "bubble":
+                sorter = new BubbleSorter();
+                break;
+            default:
+                sorter = new InsertionSorter();
+        }
+        sorter.sort(list, nacinDelovanja, smerUrejanja, 0);
+    }
+
+    private static interface Sorter {
+        void sort(ArrayList<Integer> elements, NacinDelovanja nacinDelovanja, SmerUrejanja smerUrejanja, int countMode);
+    }
+
+    private static class InsertionSorter implements Sorter {
+        @Override
+        public void sort(ArrayList<Integer> elements, NacinDelovanja nacinDelovanja, SmerUrejanja smerUrejanja, int countMode) {
+            if (nacinDelovanja == NacinDelovanja.TRACE)
+                System.out.println(elements);
+            long moveCount = 0;
+            long compareCount = 0;
+            for (int i = 1; i < elements.size(); i++) {
+                int j = i;
+                int currentElement = elements.get(i);
+                moveCount++;
+                while (j > 0) {
+                    compareCount++;
+                    if (smerUrejanja == SmerUrejanja.ASC ? elements.get(j - 1) > currentElement : elements.get(j - 1) < currentElement) {
+                        elements.set(j, elements.get(j - 1));
+                        moveCount++;
+                        j--;
+                    } else {
+                        break;
+                    }
+                }
+                elements.set(j, currentElement);
+                moveCount++;
+                if (nacinDelovanja == NacinDelovanja.TRACE) {
+                    System.out.printf("%s | %s\n", elements.subList(0, i + 1), elements.subList(i + 1, elements.size()));
+                }
+            }
+            if (nacinDelovanja == NacinDelovanja.COUNT) {
+                System.out.printf("%s%d %d", countMode++ == 0 ? "" : " | ", moveCount, compareCount);
+                if (countMode == 1) {
+                    this.sort(elements, nacinDelovanja, smerUrejanja, countMode);
+                } else if (countMode == 2) {
+                    this.sort(elements, nacinDelovanja, smerUrejanja == SmerUrejanja.ASC ? SmerUrejanja.DESC : SmerUrejanja.ASC, countMode);
+                }
+            }
         }
     }
 
-    private static void insertionSort(ArrayList<Integer> elements, NacinDelovanja nacinDelovanja, SmerUrejanja smerUrejanja) {
-        insertionSort(elements, nacinDelovanja, smerUrejanja, 0);
+    private static class SelectionSorter implements Sorter {
+        @Override
+        public void sort(ArrayList<Integer> elements, NacinDelovanja nacinDelovanja, SmerUrejanja smerUrejanja, int countMode) {
+            if (nacinDelovanja == NacinDelovanja.TRACE)
+                System.out.println(elements);
+            long moveCount = 0;
+            long compareCount = 0;
+            for (int i = 0; i < elements.size(); i++) {
+                int minIndex = i;
+                for (int j = i + 1; j < elements.size(); j++) {
+                    compareCount++;
+                    if (smerUrejanja == SmerUrejanja.ASC ? elements.get(j) < elements.get(minIndex) : elements.get(j) > elements.get(minIndex)) {
+                        minIndex = j;
+                    }
+                }
+                if (i == elements.size() - 1) {
+                    continue;
+                }
+                elements.swap(i, minIndex);
+                moveCount += 3;
+                if (nacinDelovanja == NacinDelovanja.TRACE) {
+                    System.out.printf("%s | %s\n", elements.subList(0, i + 1), elements.subList(i + 1, elements.size()));
+                }
+            }
+            if (nacinDelovanja == NacinDelovanja.COUNT) {
+                System.out.printf("%s%d %d", countMode++ == 0 ? "" : " | ", moveCount, compareCount);
+                if (countMode == 1) {
+                    this.sort(elements, nacinDelovanja, smerUrejanja, countMode);
+                } else if (countMode == 2) {
+                    this.sort(elements, nacinDelovanja, smerUrejanja == SmerUrejanja.ASC ? SmerUrejanja.DESC : SmerUrejanja.ASC, countMode);
+                }
+            }
+        }
     }
 
-    private static void insertionSort(ArrayList<Integer> elements, NacinDelovanja nacinDelovanja, SmerUrejanja smerUrejanja, int countMode) {
-        if (nacinDelovanja == NacinDelovanja.TRACE)
-            System.out.println(elements);
-        long moveCount = 0;
-        long compareCount = 0;
-        for (int i = 1; i < elements.size(); i++) {
-            int j = i;
-            int currentElement = elements.get(i);
-            moveCount++;
-            while (j > 0) {
-                compareCount++;
-                if (smerUrejanja == SmerUrejanja.ASC ? elements.get(j - 1) > currentElement : elements.get(j - 1) < currentElement) {
-                    elements.set(j, elements.get(j - 1));
-                    moveCount++;
-                    j--;
-                } else {
+    private static class BubbleSorter implements Sorter {
+        @Override
+        public void sort(ArrayList<Integer> elements, NacinDelovanja nacinDelovanja, SmerUrejanja smerUrejanja, int countMode) {
+            if (nacinDelovanja == NacinDelovanja.TRACE)
+                System.out.println(elements);
+            long moveCount = 0;
+            long compareCount = 0;
+            for (int i = 0; i < elements.size() - 1; i++) {
+                boolean swapped = false;
+                for (int j = 0; j < elements.size() - 1 - i; j++) {
+                    compareCount++;
+                    if (smerUrejanja == SmerUrejanja.ASC ? elements.get(j) > elements.get(j + 1) : elements.get(j) < elements.get(j + 1)) {
+                        elements.swap(j, j + 1);
+                        moveCount += 3;
+                        swapped = true;
+                    }
+                }
+                if (!swapped)
                     break;
+                if (nacinDelovanja == NacinDelovanja.TRACE)
+                    System.out.printf("%s | %s\n", elements.subList(0, elements.size() - i - 1), elements.subList(elements.size() - i - 1, elements.size()));
+            }
+            if (nacinDelovanja == NacinDelovanja.COUNT) {
+                System.out.printf("%s%d %d", countMode++ == 0 ? "" : " | ", moveCount, compareCount);
+                if (countMode == 1) {
+                    this.sort(elements, nacinDelovanja, smerUrejanja, countMode);
+                } else if (countMode == 2) {
+                    this.sort(elements, nacinDelovanja, smerUrejanja == SmerUrejanja.ASC ? SmerUrejanja.DESC : SmerUrejanja.ASC, countMode);
                 }
-            }
-            elements.set(j, currentElement);
-            moveCount++;
-            if (nacinDelovanja == NacinDelovanja.TRACE) {
-                System.out.printf("%s | %s\n", elements.subList(0, i + 1), elements.subList(i + 1, elements.size()));
-            }
-        }
-        if (nacinDelovanja == NacinDelovanja.COUNT) {
-            System.out.printf("%s%d %d", countMode++ == 0 ? "" : " | ", moveCount, compareCount);
-            if (countMode == 1) {
-                insertionSort(elements, nacinDelovanja, smerUrejanja, countMode);
-            } else if (countMode == 2) {
-                insertionSort(elements, nacinDelovanja, smerUrejanja == SmerUrejanja.ASC ? SmerUrejanja.DESC : SmerUrejanja.ASC, countMode);
-            }
-        }
-    }
-
-    private static void selectionSort(ArrayList<Integer> elements, NacinDelovanja nacinDelovanja, SmerUrejanja smerUrejanja) {
-        selectionSort(elements, nacinDelovanja, smerUrejanja, 0);
-    }
-
-    private static void selectionSort(ArrayList<Integer> elements, NacinDelovanja nacinDelovanja, SmerUrejanja smerUrejanja, int countMode) {
-        if (nacinDelovanja == NacinDelovanja.TRACE)
-            System.out.println(elements);
-        long moveCount = 0;
-        long compareCount = 0;
-        for (int i = 0; i < elements.size(); i++) {
-            int minIndex = i;
-            for (int j = i + 1; j < elements.size(); j++) {
-                compareCount++;
-                if (smerUrejanja == SmerUrejanja.ASC ? elements.get(j) < elements.get(minIndex) : elements.get(j) > elements.get(minIndex)) {
-                    minIndex = j;
-                }
-            }
-            if (i == elements.size() - 1) {
-                continue;
-            }
-            elements.swap(i, minIndex);
-            moveCount += 3;
-            if (nacinDelovanja == NacinDelovanja.TRACE) {
-                System.out.printf("%s | %s\n", elements.subList(0, i + 1), elements.subList(i + 1, elements.size()));
-            }
-        }
-        if (nacinDelovanja == NacinDelovanja.COUNT) {
-            System.out.printf("%s%d %d", countMode++ == 0 ? "" : " | ", moveCount, compareCount);
-            if (countMode == 1) {
-                selectionSort(elements, nacinDelovanja, smerUrejanja, countMode);
-            } else if (countMode == 2) {
-                selectionSort(elements, nacinDelovanja, smerUrejanja == SmerUrejanja.ASC ? SmerUrejanja.DESC : SmerUrejanja.ASC, countMode);
             }
         }
     }
