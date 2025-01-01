@@ -128,6 +128,9 @@ public class DN2 {
             case "bubble":
                 sorter = new BubbleSorter();
                 break;
+            case "heap":
+                sorter = new HeapSorter();
+                break;
             default:
                 sorter = new InsertionSorter();
         }
@@ -221,7 +224,11 @@ public class DN2 {
             for (int i = 1; i < elements.size(); i++) {
                 boolean swapped = false;
                 int lastSwappedIndex = 0;
-                for (int j = elements.size() - 1; j >= i; j--) {
+                int orderedIndex = i;
+                if (smerUrejanja == SmerUrejanja.ASC && orderedIndex != 1) {
+                    orderedIndex++;
+                }
+                for (int j = elements.size() - 1; j >= orderedIndex; j--) {
                     compareCount++;
                     if (smerUrejanja == SmerUrejanja.ASC ? elements.get(j - 1) > elements.get(j) : elements.get(j - 1) < elements.get(j)) {
                         elements.swap(j - 1, j);
@@ -245,6 +252,61 @@ public class DN2 {
                 } else if (countMode == 2) {
                     this.sort(elements, nacinDelovanja, smerUrejanja == SmerUrejanja.ASC ? SmerUrejanja.DESC : SmerUrejanja.ASC, countMode);
                 }
+            }
+        }
+    }
+
+    private static class HeapSorter implements Sorter {
+
+        private long moveCount;
+        private long compareCount;
+
+        @Override
+        public void sort(ArrayList<Integer> elements, NacinDelovanja nacinDelovanja, SmerUrejanja smerUrejanja, int countMode) {
+            moveCount = -3;
+            compareCount = 0;
+            if (nacinDelovanja == NacinDelovanja.TRACE)
+                System.out.println(elements);
+            for (int i = elements.size() / 2 - 1; i >= 0; i--) {
+                heapify(elements, elements.size(), i, smerUrejanja);
+            }
+            for (int i = elements.size() - 1; i >= 0; i--) {
+                elements.swap(0, i);
+                moveCount += 3;
+                if (nacinDelovanja == NacinDelovanja.TRACE)
+                    System.out.printf("%s | %s\n", elements.subList(0, i), elements.subList(i, elements.size()));
+                heapify(elements, i, 0, smerUrejanja);
+            }
+            if (nacinDelovanja == NacinDelovanja.COUNT) {
+                System.out.printf("%s%d %d", countMode++ == 0 ? "" : " | ", moveCount, compareCount);
+                if (countMode == 1) {
+                    this.sort(elements, nacinDelovanja, smerUrejanja, countMode);
+                } else if (countMode == 2) {
+                    this.sort(elements, nacinDelovanja, smerUrejanja == SmerUrejanja.ASC ? SmerUrejanja.DESC : SmerUrejanja.ASC, countMode);
+                }
+            }
+        }
+
+        private void heapify(ArrayList<Integer> elements, int n, int i, SmerUrejanja smerUrejanja) {
+            int largest = i;
+            int l = 2 * i + 1;
+            int r = 2 * i + 2;
+            if (l < n) {
+                compareCount++;
+                if (smerUrejanja == SmerUrejanja.ASC ? elements.get(l) > elements.get(largest) : elements.get(l) < elements.get(largest)) {
+                    largest = l;
+                }
+            }
+            if (r < n) {
+                compareCount++;
+                if (smerUrejanja == SmerUrejanja.ASC ? elements.get(r) > elements.get(largest) : elements.get(r) < elements.get(largest)) {
+                    largest = r;
+                }
+            }
+            if (largest != i) {
+                elements.swap(i, largest);
+                moveCount += 3;
+                heapify(elements, n, largest, smerUrejanja);
             }
         }
     }
