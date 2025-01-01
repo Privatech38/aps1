@@ -268,11 +268,11 @@ public class DN2 {
                 heapify(elements, elements.size(), i, smerUrejanja);
             }
             for (int i = elements.size() - 1; i >= 0; i--) {
-                elements.swap(0, i);
-                moveCount += 3;
                 if (nacinDelovanja == NacinDelovanja.TRACE)
-                    System.out.printf("%s | %s\n", elements.subList(0, i), elements.subList(i, elements.size()));
+                    System.out.printf("%s | %s\n", elements.subList(0, i + 1), elements.subList(i + 1, elements.size()));
+                elements.swap(0, i);
                 heapify(elements, i, 0, smerUrejanja);
+                moveCount += 3;
             }
             if (nacinDelovanja == NacinDelovanja.COUNT) {
                 System.out.printf("%s%d %d", countMode++ == 0 ? "" : " | ", moveCount, compareCount);
