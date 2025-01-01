@@ -221,14 +221,11 @@ public class DN2 {
                 System.out.println(elements);
             long moveCount = 0;
             long compareCount = 0;
-            for (int i = 1; i < elements.size(); i++) {
+            int i = 0; // Also counts as last swapped index
+            while (i < elements.size() - 1) {
                 boolean swapped = false;
-                int lastSwappedIndex = 0;
-                int orderedIndex = i;
-                if (smerUrejanja == SmerUrejanja.ASC && orderedIndex != 1) {
-                    orderedIndex++;
-                }
-                for (int j = elements.size() - 1; j >= orderedIndex; j--) {
+                int lastSwappedIndex = elements.size() - 1;
+                for (int j = elements.size() - 1; j > i; j--) {
                     compareCount++;
                     if (smerUrejanja == SmerUrejanja.ASC ? elements.get(j - 1) > elements.get(j) : elements.get(j - 1) < elements.get(j)) {
                         elements.swap(j - 1, j);
@@ -237,13 +234,13 @@ public class DN2 {
                         lastSwappedIndex = j;
                     }
                 }
+                i = lastSwappedIndex;
+                if (nacinDelovanja == NacinDelovanja.TRACE)
+                    System.out.printf("%s | %s\n", elements.subList(0, i), elements.subList(i, elements.size()));
                 if (!swapped) {
-                    if (nacinDelovanja == NacinDelovanja.TRACE)
-                        System.out.printf("%s | %s\n", elements.subList(0, elements.size() - 1), elements.subList(elements.size() - 1, elements.size()));
                     break;
                 }
-                if (nacinDelovanja == NacinDelovanja.TRACE)
-                    System.out.printf("%s | %s\n", elements.subList(0, lastSwappedIndex), elements.subList(lastSwappedIndex, elements.size()));
+
             }
             if (nacinDelovanja == NacinDelovanja.COUNT) {
                 System.out.printf("%s%d %d", countMode++ == 0 ? "" : " | ", moveCount, compareCount);
