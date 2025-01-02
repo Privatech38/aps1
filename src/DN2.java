@@ -131,6 +131,9 @@ public class DN2 {
             case "heap":
                 sorter = new HeapSorter();
                 break;
+            case "merge":
+                sorter = new MergeSorter();
+                break;
             default:
                 sorter = new InsertionSorter();
         }
@@ -305,6 +308,69 @@ public class DN2 {
                 moveCount += 3;
                 heapify(elements, n, largest, smerUrejanja);
             }
+        }
+    }
+
+    private static class MergeSorter implements Sorter {
+        private long moveCount = 0;
+        private long compareCount = 0;
+
+        @Override
+        public void sort(ArrayList<Integer> elements, NacinDelovanja nacinDelovanja, SmerUrejanja smerUrejanja, int countMode) {
+            if (nacinDelovanja == NacinDelovanja.TRACE)
+                System.out.println(elements);
+            moveCount = 0;
+            compareCount = 0;
+            split(elements, 0, elements.size(), smerUrejanja, nacinDelovanja, countMode);
+            if (nacinDelovanja == NacinDelovanja.COUNT) {
+                System.out.printf("%s%d %d", countMode++ == 0 ? "" : " | ", moveCount, compareCount);
+                if (countMode == 1) {
+                    this.sort(elements, nacinDelovanja, smerUrejanja, countMode);
+                } else if (countMode == 2) {
+                    this.sort(elements, nacinDelovanja, smerUrejanja == SmerUrejanja.ASC ? SmerUrejanja.DESC : SmerUrejanja.ASC, countMode);
+                }
+            }
+        }
+
+        private void split(ArrayList<Integer> elements, int l, int r, SmerUrejanja smerUrejanja, NacinDelovanja nacinDelovanja, int countMode) {
+            if (r - l < 2) {
+                return;
+            }
+            int diff = (int) Math.ceil((r - l) / 2.0f);
+            if (nacinDelovanja == NacinDelovanja.TRACE)
+                System.out.printf("%s | %s\n", elements.subList(l, l + diff), elements.subList(l + diff, r));
+            split(elements, l, l + diff, smerUrejanja, nacinDelovanja, countMode);
+            split(elements, l + diff, r, smerUrejanja, nacinDelovanja, countMode);
+            merge(elements, l, l + diff, r, smerUrejanja, nacinDelovanja, countMode);
+        }
+
+        // Right is exclusive
+        private void merge(ArrayList<Integer> elements, int left, int middle, int right, SmerUrejanja smerUrejanja, NacinDelovanja nacinDelovanja, int countMode) {
+            int i = 0;
+            int leftIndex = 0;
+            int rightIndex = 0;
+            ArrayList<Integer> leftList = elements.subList(left, middle);
+            ArrayList<Integer> rightList = elements.subList(middle, right);
+            while (leftIndex < leftList.size() && rightIndex < rightList.size()) {
+                compareCount++;
+                if (smerUrejanja == SmerUrejanja.ASC ? leftList.get(leftIndex) <= rightList.get(rightIndex) : leftList.get(leftIndex) >= rightList.get(rightIndex)) {
+                    elements.set(left + i, leftList.get(leftIndex++));
+                } else {
+                    elements.set(left + i, rightList.get(rightIndex++));
+                }
+                i++;
+                moveCount += 2;
+            }
+            while (leftIndex < leftList.size()) {
+                elements.set(left + i++, leftList.get(leftIndex++));
+                moveCount += 2;
+            }
+            while (rightIndex < rightList.size()) {
+                elements.set(left + i++, rightList.get(rightIndex++));
+                moveCount += 2;
+            }
+            if (nacinDelovanja == NacinDelovanja.TRACE)
+                System.out.println(elements.subList(left, right));
         }
     }
 
