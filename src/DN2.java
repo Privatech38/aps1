@@ -134,6 +134,9 @@ public class DN2 {
             case "merge":
                 sorter = new MergeSorter();
                 break;
+            case "quick":
+                sorter = new QuickSorter();
+                break;
             default:
                 sorter = new InsertionSorter();
         }
@@ -385,7 +388,10 @@ public class DN2 {
                 System.out.println(elements);
             moveCount = 0;
             compareCount = 0;
-            quickSort(elements, 0, elements.size() - 1, smerUrejanja);
+            quickSort(elements, 0, elements.size() - 1, smerUrejanja, nacinDelovanja);
+            if (nacinDelovanja == NacinDelovanja.TRACE)
+                System.out.println(elements);
+            System.out.println("Zivjo");
             if (nacinDelovanja == NacinDelovanja.COUNT) {
                 System.out.printf("%s%d %d", countMode++ == 0 ? "" : " | ", moveCount, compareCount);
                 if (countMode == 1) {
@@ -396,29 +402,50 @@ public class DN2 {
             }
         }
 
-        private void quickSort(ArrayList<Integer> elements, int low, int high, SmerUrejanja smerUrejanja) {
-            if (low < high) {
-                int pi = partition(elements, low, high, smerUrejanja);
-                quickSort(elements, low, pi - 1, smerUrejanja);
-                quickSort(elements, pi + 1, high, smerUrejanja);
+        private void quickSort(ArrayList<Integer> elements, int left, int right, SmerUrejanja smerUrejanja, NacinDelovanja nacinDelovanja) {
+            if (left < right) {
+                int pivot = partition(elements, left, right, smerUrejanja, nacinDelovanja);
+                quickSort(elements, left, pivot - 1, smerUrejanja, nacinDelovanja);
+                quickSort(elements, pivot + 1, right, smerUrejanja, nacinDelovanja);
             }
         }
 
-        private int partition(ArrayList<Integer> elements, int low, int high, SmerUrejanja smerUrejanja) {
-            int pivot = elements.get(high);
-            int i = low - 1;
-            for (int j = low; j < high; j++) {
+        private int partition(ArrayList<Integer> elements, int left, int right, SmerUrejanja smerUrejanja, NacinDelovanja nacinDelovanja) {
+            int pivot = elements.get(left);
+            int l = left + 1;
+            int r = right;
+
+            while (l <= r) {
                 compareCount++;
-                if (smerUrejanja == SmerUrejanja.ASC ? elements.get(j) < pivot : elements.get(j) > pivot) {
-                    i++;
-                    elements.swap(i, j);
+                while (l <= r && (smerUrejanja == SmerUrejanja.ASC ? elements.get(l) < pivot : elements.get(l) > pivot)) {
+                    l++;
+                    compareCount++;
+                }
+                compareCount++;
+                while (l <= r && (smerUrejanja == SmerUrejanja.ASC ? elements.get(r) > pivot : elements.get(r) < pivot)) {
+                    r--;
+                    compareCount++;
+                }
+                if (l < r) {
+                    elements.swap(l, r);
                     moveCount += 3;
+                    l++;
+                    r--;
                 }
             }
-            elements.swap(i + 1, high);
+            elements.swap(left, r);
             moveCount += 3;
-            return i + 1;
+            if (nacinDelovanja == NacinDelovanja.TRACE) {
+                if (left < r)
+                    System.out.print(elements.subList(left, r) + " ");
+                System.out.printf("| %d |", elements.get(r));
+                if (r + 1 < right + 1)
+                    System.out.print(" " + elements.subList(r + 1, right + 1));
+                System.out.println();
+            }
+            return r;
         }
+
     }
 
 }
