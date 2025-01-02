@@ -374,4 +374,51 @@ public class DN2 {
         }
     }
 
+    private static class QuickSorter implements Sorter {
+
+        private long moveCount;
+        private long compareCount;
+
+        @Override
+        public void sort(ArrayList<Integer> elements, NacinDelovanja nacinDelovanja, SmerUrejanja smerUrejanja, int countMode) {
+            if (nacinDelovanja == NacinDelovanja.TRACE)
+                System.out.println(elements);
+            moveCount = 0;
+            compareCount = 0;
+            quickSort(elements, 0, elements.size() - 1, smerUrejanja);
+            if (nacinDelovanja == NacinDelovanja.COUNT) {
+                System.out.printf("%s%d %d", countMode++ == 0 ? "" : " | ", moveCount, compareCount);
+                if (countMode == 1) {
+                    this.sort(elements, nacinDelovanja, smerUrejanja, countMode);
+                } else if (countMode == 2) {
+                    this.sort(elements, nacinDelovanja, smerUrejanja == SmerUrejanja.ASC ? SmerUrejanja.DESC : SmerUrejanja.ASC, countMode);
+                }
+            }
+        }
+
+        private void quickSort(ArrayList<Integer> elements, int low, int high, SmerUrejanja smerUrejanja) {
+            if (low < high) {
+                int pi = partition(elements, low, high, smerUrejanja);
+                quickSort(elements, low, pi - 1, smerUrejanja);
+                quickSort(elements, pi + 1, high, smerUrejanja);
+            }
+        }
+
+        private int partition(ArrayList<Integer> elements, int low, int high, SmerUrejanja smerUrejanja) {
+            int pivot = elements.get(high);
+            int i = low - 1;
+            for (int j = low; j < high; j++) {
+                compareCount++;
+                if (smerUrejanja == SmerUrejanja.ASC ? elements.get(j) < pivot : elements.get(j) > pivot) {
+                    i++;
+                    elements.swap(i, j);
+                    moveCount += 3;
+                }
+            }
+            elements.swap(i + 1, high);
+            moveCount += 3;
+            return i + 1;
+        }
+    }
+
 }
