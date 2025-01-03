@@ -415,27 +415,24 @@ public class DN2 {
             int l = left + 1;
             int r = right;
 
-            boolean stuck = false;
-            while (!stuck) {
-                stuck = true;
+            while (true) {
                 compareCount++;
                 while (l <= right && (smerUrejanja == SmerUrejanja.ASC ? elements.get(l) < pivot : elements.get(l) > pivot)) {
                     l++;
                     compareCount++;
-                    stuck = false;
                 }
                 compareCount++;
                 while (r >= left && (smerUrejanja == SmerUrejanja.ASC ? elements.get(r) > pivot : elements.get(r) < pivot)) {
                     r--;
                     compareCount++;
-                    stuck = false;
                 }
                 if (l < r) {
-                    stuck = false;
                     elements.swap(l, r);
                     moveCount += 3;
                     l++;
                     r--;
+                } else {
+                    break;
                 }
             }
             elements.swap(left, r);
