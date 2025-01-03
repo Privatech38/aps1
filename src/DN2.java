@@ -86,7 +86,7 @@ public class DN2 {
         final String[] commands = sc.nextLine().split(" ");
         final String data = sc.nextLine();
         final ArrayList<Integer> numbers = new ArrayList<>();
-        for (String string : data.split(" ")) {
+        for (String string : data.split("\\s+")) {
             numbers.add(Integer.parseInt(string));
         }
         process(commands, numbers);
@@ -391,7 +391,6 @@ public class DN2 {
             quickSort(elements, 0, elements.size() - 1, smerUrejanja, nacinDelovanja);
             if (nacinDelovanja == NacinDelovanja.TRACE)
                 System.out.println(elements);
-            System.out.println("Zivjo");
             if (nacinDelovanja == NacinDelovanja.COUNT) {
                 System.out.printf("%s%d %d", countMode++ == 0 ? "" : " | ", moveCount, compareCount);
                 if (countMode == 1) {
@@ -415,16 +414,20 @@ public class DN2 {
             int l = left + 1;
             int r = right;
 
-            while (l <= r) {
+            boolean stuck = false;
+            while (!stuck) {
+                stuck = true;
                 compareCount++;
-                while (l <= r && (smerUrejanja == SmerUrejanja.ASC ? elements.get(l) < pivot : elements.get(l) > pivot)) {
+                while (l <= right && (smerUrejanja == SmerUrejanja.ASC ? elements.get(l) < pivot : elements.get(l) > pivot)) {
                     l++;
                     compareCount++;
+                    stuck = false;
                 }
                 compareCount++;
-                while (l <= r && (smerUrejanja == SmerUrejanja.ASC ? elements.get(r) > pivot : elements.get(r) < pivot)) {
+                while (r >= left && (smerUrejanja == SmerUrejanja.ASC ? elements.get(r) > pivot : elements.get(r) < pivot)) {
                     r--;
                     compareCount++;
+                    stuck = false;
                 }
                 if (l < r) {
                     elements.swap(l, r);
