@@ -411,6 +411,7 @@ public class DN2 {
 
         private int partition(ArrayList<Integer> elements, int left, int right, SmerUrejanja smerUrejanja, NacinDelovanja nacinDelovanja) {
             int pivot = elements.get(left);
+            moveCount++;
             int l = left + 1;
             int r = right;
 
@@ -430,6 +431,7 @@ public class DN2 {
                     stuck = false;
                 }
                 if (l < r) {
+                    stuck = false;
                     elements.swap(l, r);
                     moveCount += 3;
                     l++;
