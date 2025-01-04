@@ -1,7 +1,7 @@
 import java.util.Arrays;
 import java.util.Scanner;
 
-@SuppressWarnings({"SuspiciousNameCombination", "unchecked"})
+@SuppressWarnings({"unchecked"})
 public class DN2 {
 
     private static class ArrayList<T> {
@@ -92,7 +92,7 @@ public class DN2 {
     public static void main(String[] args) {
         // User input
         final Scanner sc = new Scanner(System.in);
-        final String[] commands = sc.nextLine().split(" ");
+        final String[] commands = sc.nextLine().split("\\s+");
         final String data = sc.nextLine();
         final ArrayList<Integer> numbers = new ArrayList<>();
         for (String string : data.split("\\s+")) {
@@ -539,6 +539,14 @@ public class DN2 {
             compareCount = 0;
             if (nacinDelovanja == NacinDelovanja.TRACE)
                 System.out.println(elements);
+            // Edge case for one element
+            if (elements.size() <= 1) {
+                if (nacinDelovanja == NacinDelovanja.TRACE) {
+                    System.out.println(elements);
+                    System.out.println(elements);
+                }
+                return;
+            }
             // Determine max and min
             int max = elements.get(0);
             int min = elements.get(0);
@@ -547,14 +555,13 @@ public class DN2 {
                 if (elements.get(i) < min) {
                     compareCount--;
                     min = elements.get(i);
-                }
-                if (elements.get(i) > max) {
+                } else if (elements.get(i) > max) {
                     max = elements.get(i);
                 }
             }
             // Create buckets
             int k = (int) Math.floor(elements.size() / 2.0f);
-            float average = (max - min + 1) / (float) k;
+            double average = (max - min + 1) / (double) k;
             int[] c = new int[k];
             // Fill buckets
             for (int i = 0; i < elements.size(); i++) {
