@@ -412,25 +412,21 @@ public class DN2 {
         private int partition(ArrayList<Integer> elements, int left, int right, SmerUrejanja smerUrejanja, NacinDelovanja nacinDelovanja) {
             int pivot = elements.get(left);
             moveCount++;
-            int l = left + 1;
-            int r = right;
+            int l = left;
+            int r = right + 1;
 
             while (true) {
-                compareCount++;
-                while (l <= right && (smerUrejanja == SmerUrejanja.ASC ? elements.get(l) < pivot : elements.get(l) > pivot)) {
+                do {
                     l++;
                     compareCount++;
-                }
-                compareCount++;
-                while (r >= left && (smerUrejanja == SmerUrejanja.ASC ? elements.get(r) > pivot : elements.get(r) < pivot)) {
+                } while (l < right && (smerUrejanja == SmerUrejanja.ASC ? elements.get(l) < pivot : elements.get(l) > pivot));
+                do {
                     r--;
                     compareCount++;
-                }
+                } while (r > left && (smerUrejanja == SmerUrejanja.ASC ? elements.get(r) > pivot : elements.get(r) < pivot));
                 if (l < r) {
                     elements.swap(l, r);
                     moveCount += 3;
-                    l++;
-                    r--;
                 } else {
                     break;
                 }
