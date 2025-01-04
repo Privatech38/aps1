@@ -597,9 +597,19 @@ public class DN2 {
             if (nacinDelovanja == NacinDelovanja.TRACE) {
                 String[] parts = new String[bucketIndices.length - 1];
                 for (int i = 0; i < bucketIndices.length - 1; i++) {
+                    if (bucketIndices[i + 1] - bucketIndices[i] == 0) {
+                        parts[i] = " ";
+                        continue;
+                    }
                     parts[i] = elements.subList(bucketIndices[i], bucketIndices[i + 1]).toString();
+                    if (i > 0) {
+                        parts[i] = " " + parts[i];
+                    }
+                    if (i < bucketIndices.length - 2) {
+                        parts[i] += " ";
+                    }
                 }
-                System.out.println(String.join(" | ", parts));
+                System.out.println(String.join("|", parts));
             }
             // Insertion sort
             for (int i = 1; i < elements.size(); i++) {
