@@ -1,3 +1,4 @@
+import java.util.Arrays;
 import java.util.Scanner;
 
 @SuppressWarnings({"SuspiciousNameCombination", "unchecked"})
@@ -463,7 +464,7 @@ public class DN2 {
             final String numberStr = number.toString();
             if (digitPosition >= numberStr.length())
                 return 0;
-            return Character.getNumericValue(numberStr.charAt(digitPosition));
+            return Character.getNumericValue(numberStr.charAt(numberStr.length() - 1 - digitPosition));
         }
 
         @Override
@@ -477,8 +478,10 @@ public class DN2 {
                 if (length > longest)
                     longest = length;
             }
+            if (nacinDelovanja == NacinDelovanja.TRACE)
+                System.out.println(elements);
             // Sort
-            ArrayList<Integer> tmp = new ArrayList<>(elements.size());
+            int[] tmp = new int[elements.size()];
             for (int i = 0; i < longest; i++) {
                 int[] c = new int[10];
                 // Doloci c
@@ -487,21 +490,32 @@ public class DN2 {
                     compareCount++;
                     moveCount++;
                 }
+//                System.out.printf("c: %s\n", String.join(", ", Arrays.stream(c).mapToObj(Integer::toString).toList()));
                 // Akumuliraj c
                 for (int j = 1; j < 10; j++) {
                     c[j] += c[j - 1];
                 }
+//                System.out.printf("c acc: %s\n", String.join(", ", Arrays.stream(c).mapToObj(Integer::toString).toList()));
                 // Sortiraj
                 for (int j = elements.size() - 1; j >= 0; j--) {
-                    tmp.set(--c[getDigit(elements.get(j), i)], elements.get(j));
+                    tmp[(smerUrejanja == SmerUrejanja.ASC ? 0 : elements.size() - 1) - --c[getDigit(elements.get(j), i)]] = elements.get(j);
                 }
+//                System.out.printf("c after sort: %s\n", String.join(", ", Arrays.stream(c).mapToObj(Integer::toString).toList()));
                 // Prestavi nazaj
-                for (int j = 0; j < tmp.size(); j++) {
-                    elements.set(j, tmp.get(j));
+                for (int j = 0; j < tmp.length; j++) {
+                    elements.set(j, tmp[j]);
                 }
                 // Print
                 if (nacinDelovanja == NacinDelovanja.TRACE)
                     System.out.println(elements);
+            }
+            if (nacinDelovanja == NacinDelovanja.COUNT) {
+                System.out.printf("%s%d %d", countMode++ == 0 ? "" : " | ", moveCount, compareCount);
+                if (countMode == 1) {
+                    this.sort(elements, nacinDelovanja, smerUrejanja, countMode);
+                } else if (countMode == 2) {
+                    this.sort(elements, nacinDelovanja, smerUrejanja == SmerUrejanja.ASC ? SmerUrejanja.DESC : SmerUrejanja.ASC, countMode);
+                }
             }
         }
     }
