@@ -537,14 +537,20 @@ public class DN2 {
         public void sort(ArrayList<Integer> elements, NacinDelovanja nacinDelovanja, SmerUrejanja smerUrejanja, int countMode) {
             moveCount = 0;
             compareCount = 0;
+            if (nacinDelovanja == NacinDelovanja.TRACE)
+                System.out.println(elements);
             // Determine max and min
-            int max = Integer.MIN_VALUE;
-            int min = Integer.MAX_VALUE;
-            for (int i = 0; i < elements.size(); i++) {
-                if (elements.get(i) > max)
-                    max = elements.get(i);
-                if (elements.get(i) < min)
+            int max = elements.get(0);
+            int min = elements.get(0);
+            for (int i = 1; i < elements.size(); i++) {
+                compareCount += 2;
+                if (elements.get(i) < min) {
+                    compareCount--;
                     min = elements.get(i);
+                }
+                if (elements.get(i) > max) {
+                    max = elements.get(i);
+                }
             }
             // Create buckets
             int k = (int) Math.floor(elements.size() / 2.0f);
