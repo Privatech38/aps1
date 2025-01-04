@@ -149,6 +149,9 @@ public class DN2 {
             case "radix":
                 sorter = new RadixSorter();
                 break;
+            case "bucket":
+                sorter = new BucketSorter();
+                break;
             default:
                 sorter = new InsertionSorter();
         }
@@ -523,6 +526,106 @@ public class DN2 {
                 }
             }
         }
+    }
+
+    private static class BucketSorter implements Sorter {
+
+        private long moveCount;
+        private long compareCount;
+
+        @Override
+        public void sort(ArrayList<Integer> elements, NacinDelovanja nacinDelovanja, SmerUrejanja smerUrejanja, int countMode) {
+            moveCount = 0;
+            compareCount = 0;
+            // Determine max and min
+            int max = Integer.MIN_VALUE;
+            int min = Integer.MAX_VALUE;
+            for (int i = 0; i < elements.size(); i++) {
+                if (elements.get(i) > max)
+                    max = elements.get(i);
+                if (elements.get(i) < min)
+                    min = elements.get(i);
+            }
+            // Create buckets
+            int k = (int) Math.floor(elements.size() / 2.0f);
+            float average = (max - min + 1) / (float) k;
+            int[] c = new int[k];
+            // Fill buckets
+            for (int i = 0; i < elements.size(); i++) {
+                c[(int) Math.floor((elements.get(i) - min) / average)]++;
+                compareCount++;
+            }
+            // Akumuliraj c
+            if (smerUrejanja == SmerUrejanja.ASC) {
+                for (int j = 1; j < c.length; j++) {
+                    c[j] += c[j - 1];
+                }
+            } else {
+                for (int j = c.length - 2; j >= 0; j--) {
+                    c[j] += c[j + 1];
+                }
+            }
+            // Make copy for c to save indices
+            int[] bucketIndices = new int[c.length + 1];
+            bucketIndices[0] = 0;
+            if (smerUrejanja == SmerUrejanja.DESC) {
+                for (int i = 0; i < c.length; i++) {
+                    bucketIndices[bucketIndices.length - 1 - i] = c[i];
+                }
+            } else {
+                System.arraycopy(c, 0, bucketIndices, 1, c.length);
+            }
+            // Sort
+            int[] tmp = new int[elements.size()];
+            for (int i = elements.size() - 1; i >= 0; i--) {
+                tmp[--c[(int) Math.floor((elements.get(i) - min) / average)]] = elements.get(i);
+                compareCount++;
+                moveCount++;
+            }
+            // Move back
+            for (int i = 0; i < elements.size(); i++) {
+                elements.set(i, tmp[i]);
+                moveCount++;
+            }
+            // Print bucket
+            if (nacinDelovanja == NacinDelovanja.TRACE) {
+                String[] parts = new String[bucketIndices.length - 1];
+                for (int i = 0; i < bucketIndices.length - 1; i++) {
+                    parts[i] = elements.subList(bucketIndices[i], bucketIndices[i + 1]).toString();
+                }
+                System.out.println(String.join(" | ", parts));
+            }
+            // Insertion sort
+            for (int i = 1; i < elements.size(); i++) {
+                int j = i;
+                int currentElement = elements.get(i);
+                moveCount++;
+                while (j > 0) {
+                    compareCount++;
+                    if (smerUrejanja == SmerUrejanja.ASC ? elements.get(j - 1) > currentElement : elements.get(j - 1) < currentElement) {
+                        elements.set(j, elements.get(j - 1));
+                        moveCount++;
+                        j--;
+                    } else {
+                        break;
+                    }
+                }
+                elements.set(j, currentElement);
+                moveCount++;
+                if (nacinDelovanja == NacinDelovanja.TRACE) {
+                    System.out.printf("%s | %s\n", elements.subList(0, i + 1), elements.subList(i + 1, elements.size()));
+                }
+            }
+            if (nacinDelovanja == NacinDelovanja.COUNT) {
+                System.out.printf("%s%d %d", countMode++ == 0 ? "" : " | ", moveCount, compareCount);
+                if (countMode == 1) {
+                    this.sort(elements, nacinDelovanja, smerUrejanja, countMode);
+                } else if (countMode == 2) {
+                    this.sort(elements, nacinDelovanja, smerUrejanja == SmerUrejanja.ASC ? SmerUrejanja.DESC : SmerUrejanja.ASC, countMode);
+                }
+            }
+        }
+
     }
 
 }
