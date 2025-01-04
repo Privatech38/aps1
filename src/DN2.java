@@ -5,8 +5,16 @@ public class DN2 {
 
     private static class ArrayList<T> {
         private static final int DEFAULT_CAPACITY = 16;
-        private T[] elements = (T[]) new Object[DEFAULT_CAPACITY];
+        private T[] elements;
         private int size = 0;
+
+        public ArrayList() {
+            elements = (T[]) new Object[DEFAULT_CAPACITY];
+        }
+
+        public ArrayList(int capacity) {
+            elements = (T[]) new Object[capacity];
+        }
 
         public void add(T x) {
             if (isFull()) {
@@ -136,6 +144,9 @@ public class DN2 {
                 break;
             case "quick":
                 sorter = new QuickSorter();
+                break;
+            case "radix":
+                sorter = new RadixSorter();
                 break;
             default:
                 sorter = new InsertionSorter();
@@ -444,6 +455,55 @@ public class DN2 {
             return r;
         }
 
+    }
+
+    private static class RadixSorter implements Sorter {
+
+        private static int getDigit(Integer number, int digitPosition) {
+            final String numberStr = number.toString();
+            if (digitPosition >= numberStr.length())
+                return 0;
+            return Character.getNumericValue(numberStr.charAt(digitPosition));
+        }
+
+        @Override
+        public void sort(ArrayList<Integer> elements, NacinDelovanja nacinDelovanja, SmerUrejanja smerUrejanja, int countMode) {
+            long moveCount = 0;
+            long compareCount = 0;
+            // Get the longest number
+            int longest = 0;
+            for (int i = 0; i < elements.size(); i++) {
+                int length = elements.get(i).toString().length();
+                if (length > longest)
+                    longest = length;
+            }
+            // Sort
+            ArrayList<Integer> tmp = new ArrayList<>(elements.size());
+            for (int i = 0; i < longest; i++) {
+                int[] c = new int[10];
+                // Doloci c
+                for (int j = 0; j < elements.size(); j++) {
+                    c[getDigit(elements.get(j), i)]++;
+                    compareCount++;
+                    moveCount++;
+                }
+                // Akumuliraj c
+                for (int j = 1; j < 10; j++) {
+                    c[j] += c[j - 1];
+                }
+                // Sortiraj
+                for (int j = elements.size() - 1; j >= 0; j--) {
+                    tmp.set(--c[getDigit(elements.get(j), i)], elements.get(j));
+                }
+                // Prestavi nazaj
+                for (int j = 0; j < tmp.size(); j++) {
+                    elements.set(j, tmp.get(j));
+                }
+                // Print
+                if (nacinDelovanja == NacinDelovanja.TRACE)
+                    System.out.println(elements);
+            }
+        }
     }
 
 }
