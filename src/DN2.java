@@ -488,22 +488,27 @@ public class DN2 {
                 for (int j = 0; j < elements.size(); j++) {
                     c[getDigit(elements.get(j), i)]++;
                     compareCount++;
-                    moveCount++;
                 }
-//                System.out.printf("c: %s\n", String.join(", ", Arrays.stream(c).mapToObj(Integer::toString).toList()));
                 // Akumuliraj c
-                for (int j = 1; j < 10; j++) {
-                    c[j] += c[j - 1];
+                if (smerUrejanja == SmerUrejanja.ASC) {
+                    for (int j = 1; j < 10; j++) {
+                        c[j] += c[j - 1];
+                    }
+                } else {
+                    for (int j = c.length - 2; j >= 0; j--) {
+                        c[j] += c[j + 1];
+                    }
                 }
-//                System.out.printf("c acc: %s\n", String.join(", ", Arrays.stream(c).mapToObj(Integer::toString).toList()));
                 // Sortiraj
                 for (int j = elements.size() - 1; j >= 0; j--) {
-                    tmp[(smerUrejanja == SmerUrejanja.ASC ? 0 : elements.size() - 1) - --c[getDigit(elements.get(j), i)]] = elements.get(j);
+                    tmp[--c[getDigit(elements.get(j), i)]] = elements.get(j);
+                    compareCount++;
+                    moveCount++;
                 }
-//                System.out.printf("c after sort: %s\n", String.join(", ", Arrays.stream(c).mapToObj(Integer::toString).toList()));
                 // Prestavi nazaj
                 for (int j = 0; j < tmp.length; j++) {
                     elements.set(j, tmp[j]);
+                    moveCount++;
                 }
                 // Print
                 if (nacinDelovanja == NacinDelovanja.TRACE)
