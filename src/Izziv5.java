@@ -19,6 +19,7 @@ public class Izziv5 {
         }
         do {
             Oseba[] osebeCopy = Arrays.copyOf(osebe, osebe.length);
+            Oseba.attr = -1;
             System.out.println("Seznam:");
             for (int i = 0; i < amount; i++) {
                 System.out.println(osebeCopy[i].toString());
@@ -34,7 +35,7 @@ public class Izziv5 {
 
     public static class Oseba implements Comparable<Oseba> {
 
-        public static int attr = -1;
+        public static int attr;
 
         private String priimek;
         private String ime;
@@ -110,6 +111,12 @@ public class Izziv5 {
             int lastSwappedIndex = elements.length - 1;
             for (int j = elements.length - 1; j > i; j--) {
                 if (smerUrejanja == SmerUrejanja.ASC && elements[j - 1].compareTo(elements[j]) > 0) {
+                    final Oseba temp = elements[j - 1];
+                    elements[j - 1] = elements[j];
+                    elements[j] = temp;
+                    swapped = true;
+                    lastSwappedIndex = j;
+                } else if (smerUrejanja == SmerUrejanja.DESC && elements[j - 1].compareTo(elements[j]) < 0) {
                     final Oseba temp = elements[j - 1];
                     elements[j - 1] = elements[j];
                     elements[j] = temp;
